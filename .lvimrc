@@ -1,0 +1,2 @@
+
+let t:Simleime_termcommand = 'linitbash here '.shellescape($mod_graspit_commander_root)

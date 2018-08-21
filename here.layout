@@ -1,0 +1,58 @@
+runtime_require_shellenv interactive "$mod_catkin_root"
+eval "$(tsb -c interactive -p "$layout_working_dir")"
+
+commandertest() {
+    py.test "$mod_graspit_commander_root/tests"
+}
+clashtest() {
+    local clashtests="$mod_graspit_commander_root/tests_clash"
+    local path
+    if [[ $1 == '-u' ]]; then
+        shift
+        local unit="$1"
+        shift
+        if [[ $unit ]]; then
+            path="$clashtests/$unit.py"
+        else
+            log_error "no valid unit supplied"
+            return 1
+        fi
+    else
+        if [[ $1 ]]; then
+            path="$1"
+            shift
+        else
+            path="$clashtests"
+        fi
+    fi
+
+    if [[ ! -e "$path" ]]; then
+        log_error "no valid test path: '$path'"
+        return 1
+    fi
+
+    py.test "$@" "$path"
+}
+existing_graspit() {
+    ps aux | grep '[g]raspit_simulator' | awk '{print $2}'
+}
+interface_startup() {
+    local interactive='1'
+    if [[ "$1" == '-y' ]]; then
+        local interactive='0'
+    fi
+    local giprocess="$(existing_graspit)"
+    if [[ $giprocess ]]; then
+        if [[ "$interactive" == '1' ]]; then
+            echo "Another graspit present; should I do " kill "$giprocess" "?"
+            asksure && kill "$giprocess" 
+            if [[ $(existing_graspit) ]]; then
+                log_error "another graspit is still running..., continue anyways?"
+                asksure || return 1
+            fi
+        else
+            kill "$giprocess" 
+        fi
+    fi
+    layout_eval here "$mod_graspit_interface_root" interface_startup
+}

@@ -9,7 +9,7 @@ d = generate_distutils_setup()
 
 d['name'] = "graspit_commander"
 d['description'] = "Python interface for GraspIt! simulator"
-d['packages'] = ['graspit_commander']
+d['packages'] = ['graspit_commander', 'clash_commander']
 d['package_dir'] = {'': 'src'}
 d['requirements'] = requirements
 
